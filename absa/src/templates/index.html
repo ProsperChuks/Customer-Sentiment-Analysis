@@ -5,29 +5,35 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Feedback Sentiment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
     <form action="{{ url_for('predict')}}" method="post" id="regForm">
 
-        <center>
-            <h2>Feedback Text</h2>
-        </center>
-
-        <textarea name="fb" id="fb" cols="30" rows="10"></textarea>
+        <center class='container'>
+            <h2>Customer Feedback Sentiment</h2>
         
-        <p>Aspect(Not Important rn)</p>
-        <input type="text" name="aspect" id="aspect">
-        <br>
-        <input type="button" value="Predict">
 
-        <p>rating 0-10</p>
-        <div class="kit">
-            <p class="alert alert-success">
-                {{ prediction_text }}
-            </p>
-        </div>
+            <p>Text</p>
+            <div class="tab">
+                <p><textarea name="fb" id="fb" cols="10" rows="3", required></textarea></p>
+            </div>
+
+            <div class="tag">
+                <p>Aspect</p>
+                <p><input type="text" name="aspect" placeholder="Aspect" required"></p>
+            </div>
+            <br>
+            <button type="submit" value="Predict" class="btn btn-primary">Predict</button>
+
+            <div class="kit">
+                <p class="s">
+                    {{ prediction_text }}
+                </p>
+            </div>
+        </center>
 
     </form>
 

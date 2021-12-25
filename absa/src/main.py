@@ -1,9 +1,18 @@
 import numpy as np
-import pickle
+import pandas as pd
+import keras
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
 from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
-model = pickle.load(open('C:/Users/Shallom/Desktop/do not open/Customer-Feedback-Analysis/absa/models/LSTM/Hyperparam Tuning/model0.001', 'rb'))
+
+train_data = pd.read_csv('../notebooks/datasets/train - train.csv')
+model = keras.models.load_model('../models/LSTM/Hyperparam Tuning/my_model0.001.h5')
+
+train_data = train_data['text'] + train_data['aspect']
+tk = Tokenizer(len(train_data), filters='!"#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n', split=' ')
+tk.fit_on_texts(train_data)
 
 @app.route('/')
 def home():
@@ -11,13 +20,17 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    int_features = [float(x) for x in request.form.values()]
-    final_features = [np.array(int_features)]
-    prediction = model.predict(final_features)
+    lab = []
+    label = []
+    [lab.append(x) for x in request.form.values()]
+    text_asp = lab[0] + lab[1]
+    text_asp = tk.texts_to_sequences(text_asp)
+    text_asp_padded =  pad_sequences(text_asp, maxlen=32, truncating='post', padding='post')
 
-    output = prediction
+    classify = model.predict(text_asp_padded)
+    label.append({'Negative': np.argmax(classify[:, 0]), 'Neutral': np.argmax(classify[:, 1]), 'Positive': np.argmax(classify[:, 2])})
 
-    return render_template('index.html', prediction_text='Rating of the Wine is {}'.format(output))
+    return render_template('index.html', prediction_text=label)
 
 @app.route('/results', methods=['POST'])
 def results():
